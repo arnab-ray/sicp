@@ -1,0 +1,127 @@
+#lang racket
+
+(define (abs n) (if (< n 0) (- 0 n) n))
+
+(define (numer x) (car x))
+
+(define (denom x) (cdr x))
+
+(define (print-rat x)
+  (newline)
+  (display (numer x))
+  (display "/")
+  (display (denom x)))
+
+; Problem 2.1
+
+(define (make-rat n d)
+  (cond [(or (< d 0) (and (< n 0) (< d 0))) (cons (abs n) (abs d))]
+        [else (cons n d)]))
+
+; Helper method
+
+(define (print-point p)
+  (newline)
+  (display "(")
+  (display (x-point p))
+  (display ",")
+  (display (y-point p))
+  (display ")"))
+
+(define (average x y)
+  (/ (+ x y) 2.0))
+
+; Problem 2.2
+
+(define (make-point x y) (cons x y))
+
+(define (x-point p) (car p))
+
+(define (y-point p) (cdr p))
+
+(define (make-segment p1 p2) (cons p1 p2))
+
+(define (start-segment s) (car s))
+
+(define (end-segment s) (cdr s))
+
+(define (midpoint-segment s)
+  (make-point (average (x-point (start-segment s)) (x-point (end-segment s)))
+              (average (y-point (start-segment s)) (y-point (end-segment s)))))
+
+(define seg (make-segment (make-point 2 3) (make-point 10 15)))
+
+(print-point (midpoint-segment seg))
+
+; Problem 2.3
+(define (make-rectangle bottom-left top-right)
+  (cons bottom-left top-right))
+
+(define (width-rectangle r)
+  (abs (- (x-point (car r)) (x-point (cdr r)))))
+
+(define (height-rectangle r)
+  (abs (- (y-point (car r)) (y-point (cdr r)))))
+  
+(define (perimeter-rectangle r)
+  (* 2.0 (+ (width-rectangle r) (height-rectangle r))))
+  
+(define (area-rectangle r)
+  (* (width-rectangle r) (height-rectangle r)))
+
+; Problem 2.4
+(define (cons-mod x y)
+  (lambda (m) (m x y)))
+
+(define (car-mod z)
+  (z (lambda (p q) p)))
+
+(define (cdr-mod z)
+  (z (lambda (p q) q)))
+
+; Problem 2.5
+(define (exp base n)
+  (define (iter count result)
+    (if (= count n)
+        result
+        (iter (+ count 1) (* result base))))
+  (iter 1 base))
+
+(define (count-divisibility n divisor)
+  (define (iter pow)
+    (if (= 0 (remainder n (exp divisor pow))) (+ pow 1) (- pow 1)))
+  (iter 1))
+
+(define (cons-new-mod a b)
+  (* (exp 2 a) (exp 3 b)))
+
+(define (car-new-mod x) (count-divisibility x 2))
+
+(define (cdr-new-mod x) (count-divisibility x 3))
+
+; Problem 2.6
+(define zero
+  (lambda (f) (lambda (x) x)))
+
+(define (add-1 n)
+  (lambda (f) (lambda (x) (f ((n f) x)))))
+
+(define one
+  (lambda (f) (lambda (x) (f x))))
+
+(define two
+  (lambda (f) (lambda (x) (f (f x)))))
+
+(define (add a b)
+  (lambda (f) (lambda (x) (a f) ((b f) x))))
+
+; Problem 2.7
+(define (make-interval a b) (cons a b))
+
+(define (lower-bound i) (min (car i) (cdr i)))
+(define (upper-bound i) (max (car i) (cdr i)))
+
+; Problem 2.8
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x) (upper-bound y))
+                 (- (upper-bound x) (lower-bound y))))
