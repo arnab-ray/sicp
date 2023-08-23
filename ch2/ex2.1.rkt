@@ -207,5 +207,86 @@
         [else (proc (car items)) (for-each proc (cdr items))]))
 
 ; Problem 2.26
-(define x (list 1 2 3))
-(define y (list 4 5 6))
+
+
+; Problem 2.27
+(define (deep-reverse l)
+  (cond [(null? l) null]
+        [(not (pair? l)) (car l)]
+        [else (append (deep-reverse (cdr l)) (list (reverse (car l))))]))
+
+; Problem 2.28
+(define (fringe t)
+  (cond [(null? t) null]
+        [(not (pair? t)) (list t)]
+        [else (append (fringe (car t)) (fringe (cdr t)))]))
+
+; Problem 2.29
+(define (make-mobile left right)
+  (list left right))
+
+(define (make-branch length structure)
+  (list length structure))
+
+(define (left-branch mobile) (car mobile))
+
+(define (right-branch mobile) (car (cdr mobile)))
+
+(define (branch-length b) (car b))
+
+(define (branch-structure b) (car (cdr b)))
+
+(define (branch-weight b)
+  (cond [(null? b) 0]
+        [(not (pair? (branch-structure b))) b]
+        [else (+
+               (branch-weight (left-branch (branch-structure b)))
+               (branch-weight (right-branch (branch-structure b))))]))
+  
+(define (total-weight mobile)
+  (cond [(null? mobile) 0]
+        [(not (pair? mobile)) mobile]
+        [else (+
+               (total-weight (branch-structure (left-branch mobile)))
+               (total-weight (branch-structure (right-branch mobile))))]))
+
+(define (torque branch)
+  (* (branch-length branch) (total-weight (branch-structure branch))))
+  
+(define (is-balanced? mobile)
+  (cond [(null? mobile) #t]
+        [(not (pair? mobile)) #t]
+        [else (and (= (torque (left-branch mobile)) (torque (right-branch mobile)))
+                   (is-balanced? (branch-structure (left-branch mobile)))
+                   (is-balanced? (branch-structure (right-branch mobile))))]))
+
+; Helper
+(define (square a) (* a a))
+
+; Problemm 2.30
+(define (square-tree tree)
+  (cond [(null? tree) null]
+        [(not (pair? tree)) (square tree)]
+        [else (cons (square-tree (car tree)) (square-tree (cdr tree)))]))
+
+(define (square-tree-map tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (square-tree-map sub-tree)
+             (square sub-tree)))
+       tree))
+
+; Problem 2.31
+(define (tree-map proc tree)
+  (cond [(null? tree) null]
+        [(not (pair? tree)) (proc tree)]
+        [else (cons (tree-map proc (car tree)) (tree-map proc (cdr tree)))]))
+
+(define (square-tree-abs tree) (tree-map square tree))
+
+; Problem 2.32
+(define (subsets s)
+  (if (null? s)
+      (list null)
+      (let ([rest (subsets (cdr s))])
+        (append rest (map (lambda (x) (cons (car s) x)) rest)))))
