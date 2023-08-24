@@ -290,3 +290,84 @@
       (list null)
       (let ([rest (subsets (cdr s))])
         (append rest (map (lambda (x) (cons (car s) x)) rest)))))
+
+; Helper
+(define (filter predicate sequence)
+  (cond ((null? sequence) null)
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
+(define (enumerate-tree tree)
+  (cond ((null? tree) null)
+        ((not (pair? tree)) (list tree))
+        (else (append (enumerate-tree (car tree))
+                      (enumerate-tree (cdr tree))))))
+
+; Problem 2.33
+(define (map-acc p sequence)
+ (accumulate (lambda (x y) (cons (p x) y)) null sequence))
+
+(define (append seq1 seq2)
+ (accumulate cons seq2 seq1))
+
+(define (length sequence)
+  (accumulate (lambda (x y) (+ 1 y)) 0 sequence))
+
+; Problem 2.34
+(define (horner-eval x coefficient-sequence)
+  (accumulate (lambda (this-coeff higher-terms) (+ (* higher-terms x) this-coeff))
+              0
+              coefficient-sequence))
+
+; Problem 2.35
+(define (count-leaves tree)
+  (accumulate +
+              0
+              (map (lambda (x) 1) (enumerate-tree tree))))
+
+; Problem 2.36
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      null
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+
+; Problem 2.37
+(define (map-n proc . seqs)
+  (if (null? seqs)
+      null
+      (cons (proc (map car seqs)) (map-n proc (map cdr seqs)))))
+
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+;(define (matrix-*-vector m v)
+ ; (map <??> m))
+
+;(define (transpose mat)
+ ; (accumulate-n <??> <??> mat))
+
+;(define (matrix-*-matrix m n)
+ ; (let ((cols (transpose n)))
+  ;  (map <??> m)))
+
+; Problem 2.38
+(define (fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest))
+              (cdr rest))))
+  (iter initial sequence))
+
+(define (fold-right op initial sequence)
+  (accumulate op initial sequence))
+
