@@ -1,0 +1,25 @@
+#lang racket
+
+(define (half-adder a b s c)
+  (let ((d (make-wire)) (e (make-wire)))
+    (or-gate a b d)
+    (and-gate a b c)
+    (inverter c e)
+    (and-gate d e s)
+    'ok))
+
+(define (full-adder a b c-in sum c-out)
+  (let ((s (make-wire))
+        (c1 (make-wire))
+        (c2 (make-wire)))
+    (half-adder b c-in s c1)
+    (half-adder a s sum c2)
+    (or-gate c1 c2 c-out)
+    'ok))
+
+(define (ripple-carry-adder a b c s)
+  (let ([c-in (make-wire)])
+    (if (null? (cdr a))
+        (set-signal! c-in 0)
+        (ripple-carry-adder (cdr a) (cdr b) c-in (cdr s)))
+    (full-adder (car a) (car b) c-in (car s) c)))
